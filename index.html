@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>競艇払戻金計算機 | BoatCalc</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --aqua: #29b6d8;
+    --aqua-dark: #1a96b8;
+    --aqua-light: #e0f5fb;
+    --aqua-pale: #f2fbfd;
+    --sky-mid: #c8edf5;
+    --white: #ffffff;
+    --gray-50: #f8fafc;
+    --gray-100: #f1f5f8;
+    --gray-200: #e2eaef;
+    --gray-400: #94aab8;
+    --gray-600: #4e6070;
+    --gray-800: #1e2e3a;
+    --green: #22c55e;
+    --red: #ef4444;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+    --shadow-md: 0 4px 16px rgba(0,0,0,0.08);
+    --radius: 14px;
+    --radius-sm: 8px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Noto Sans JP', sans-serif; background: var(--gray-50); color: var(--gray-800); min-height: 100vh; font-size: 14px; line-height: 1.6; }
+
+  /* Header */
+  header { background: var(--white); border-bottom: 1px solid var(--gray-200); padding: 0 24px; position: sticky; top: 0; z-index: 100; box-shadow: var(--shadow-sm); }
+  .header-inner { max-width: 800px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 60px; }
+  .logo { display: flex; align-items: center; gap: 10px; }
+  .logo-icon { width: 34px; height: 34px; background: linear-gradient(135deg, var(--aqua), var(--aqua-dark)); border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 17px; box-shadow: 0 2px 8px rgba(41,182,216,0.3); }
+  .logo-text { font-family: 'DM Sans', sans-serif; font-size: 19px; font-weight: 700; color: var(--gray-800); letter-spacing: -0.5px; }
+  .logo-text span { color: var(--aqua); }
+  .header-tag { font-size: 11px; font-weight: 600; color: var(--aqua-dark); background: var(--aqua-light); border: 1px solid var(--sky-mid); padding: 3px 11px; border-radius: 20px; }
+
+  /* Hero */
+  .hero { background: linear-gradient(135deg, var(--aqua) 0%, var(--aqua-dark) 100%); color: white; text-align: center; padding: 32px 24px; }
+  .hero h1 { font-size: clamp(18px, 4vw, 26px); font-weight: 700; }
+  .hero p { font-size: 13px; opacity: 0.85; margin-top: 5px; }
+
+  /* Layout */
+  .page { max-width: 800px; margin: 0 auto; padding: 28px 20px 80px; }
+
+  /* Ad */
+  .ad-slot { background: var(--white); border: 1.5px dashed var(--gray-200); border-radius: var(--radius-sm); padding: 14px; text-align: center; color: var(--gray-400); font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 20px; }
+
+  /* Step label */
+  .step-label { display: flex; align-items: center; gap: 9px; margin-bottom: 16px; }
+  .step-num { width: 23px; height: 23px; background: var(--aqua); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; }
+  .step-title { font-size: 15px; font-weight: 700; }
+
+  /* Card */
+  .card { background: var(--white); border: 1px solid var(--gray-200); border-radius: var(--radius); padding: 22px; margin-bottom: 14px; box-shadow: var(--shadow-sm); animation: fadeUp 0.3s ease both; }
+  @keyframes fadeUp { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+
+  /* Ticket grid */
+  .ticket-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  @media (max-width:500px) { .ticket-grid { grid-template-columns: repeat(3,1fr); } }
+  .ticket-btn { padding: 11px 6px; border: 1.5px solid var(--gray-200); border-radius: var(--radius-sm); background: var(--white); color: var(--gray-600); font-family: 'Noto Sans JP', sans-serif; font-size: 12px; font-weight: 600; cursor: pointer; text-align: center; line-height: 1.5; transition: all 0.15s; }
+  .ticket-btn:hover { border-color: var(--aqua); color: var(--aqua-dark); background: var(--aqua-pale); }
+  .ticket-btn.active { border-color: var(--aqua); background: var(--aqua-pale); color: var(--aqua-dark); box-shadow: 0 0 0 3px rgba(41,182,216,0.1); }
+  .ticket-tag { display: block; font-size: 9px; color: var(--aqua); margin-top: 2px; }
+
+  /* Mode tabs */
+  .mode-tabs { display: flex; background: var(--gray-100); border-radius: var(--radius-sm); padding: 4px; gap: 3px; margin-bottom: 20px; }
+  .mode-tab { flex: 1; padding: 8px 4px; border: none; border-radius: 6px; background: transparent; color: var(--gray-400); font-family: 'Noto Sans JP', sans-serif; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.15s; }
+  .mode-tab.active { background: var(--white); color: var(--aqua-dark); box-shadow: var(--shadow-sm); }
+
+  /* Form */
+  .form-label { display: block; font-size: 12px; font-weight: 600; color: var(--gray-600); margin-bottom: 7px; }
+  .form-input { width: 100%; padding: 10px 13px; background: var(--white); border: 1.5px solid var(--gray-200); border-radius: var(--radius-sm); color: var(--gray-800); font-family: 'Noto Sans JP', sans-serif; font-size: 15px; font-weight: 500; outline: none; transition: border-color 0.15s, box-shadow 0.15s; }
+  .form-input:focus { border-color: var(--aqua); box-shadow: 0 0 0 3px rgba(41,182,216,0.1); }
+  .form-input::placeholder { color: var(--gray-400); font-size: 13px; }
+  .form-group { margin-bottom: 16px; }
+  .input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width:480px) { .input-row { grid-template-columns:1fr; } }
+
+  /* Boat selector */
+  .boat-selector { display: flex; gap: 7px; flex-wrap: wrap; }
+  .boat-select-btn { display: flex; align-items: center; gap: 6px; padding: 7px 13px; background: var(--white); border: 1.5px solid var(--gray-200); border-radius: var(--radius-sm); color: var(--gray-600); font-family: 'Noto Sans JP', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.15s; min-width: 76px; }
+  .boat-select-btn:hover { border-color: var(--aqua); color: var(--aqua-dark); }
+  .boat-select-btn.selected { border-color: var(--aqua); background: var(--aqua-pale); color: var(--aqua-dark); box-shadow: 0 0 0 3px rgba(41,182,216,0.09); }
+  .boat-num { display: inline-flex; align-items: center; justify-content: center; width: 23px; height: 23px; border-radius: 50%; font-weight: 700; font-size: 11px; color: white; flex-shrink: 0; }
+  .boat-1 { background: #e8e8e8; color: #333; }
+  .boat-2 { background: #1a1a2e; }
+  .boat-3 { background: #e63946; }
+  .boat-4 { background: #3a86ff; }
+  .boat-5 { background: #f8c537; color: #333; }
+  .boat-6 { background: #2dc653; }
+
+  /* Hint */
+  .hint-box { background: var(--aqua-pale); border: 1px solid var(--sky-mid); border-left: 3px solid var(--aqua); border-radius: var(--radius-sm); padding: 11px 14px; font-size: 12.5px; color: var(--gray-600); line-height: 1.75; margin-bottom: 16px; }
+  .hint-box strong { color: var(--aqua-dark); }
+  .sub-label { font-size: 12px; font-weight: 600; color: var(--aqua-dark); margin-bottom: 8px; display: block; }
+  .formation-section { margin-bottom: 16px; }
+
+  /* Combo list */
+  .combo-list { border: 1px solid var(--gray-200); border-radius: var(--radius-sm); overflow: hidden; max-height: 300px; overflow-y: auto; }
+  .combo-header { padding: 7px 13px; background: var(--gray-100); border-bottom: 1px solid var(--gray-200); font-size: 11px; font-weight: 600; color: var(--gray-400); display: flex; justify-content: space-between; }
+  .combo-item { display: flex; align-items: center; justify-content: space-between; padding: 9px 13px; border-bottom: 1px solid var(--gray-100); background: var(--white); }
+  .combo-item:last-child { border-bottom: none; }
+  .combo-item:hover { background: var(--aqua-pale); }
+  .combo-numbers { display: flex; align-items: center; gap: 4px; }
+  .combo-arrow { color: var(--gray-400); font-size: 11px; }
+  .combo-odds-wrap { display: flex; align-items: center; gap: 7px; }
+  .combo-odds-label { font-size: 11px; color: var(--gray-400); }
+  .combo-odds-input { width: 78px; padding: 5px 8px; border: 1.5px solid var(--gray-200); border-radius: 6px; font-family: 'Noto Sans JP', sans-serif; font-size: 13px; font-weight: 600; color: var(--gray-800); outline: none; text-align: center; background: var(--white); transition: border-color 0.15s; }
+  .combo-odds-input:focus { border-color: var(--aqua); box-shadow: 0 0 0 2px rgba(41,182,216,0.1); }
+  .combo-count-badge { display: inline-block; background: var(--aqua); color: white; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 10px; margin-left: 6px; }
+
+  /* Bet */
+  .bet-section { margin-top: 18px; padding-top: 18px; border-top: 1px solid var(--gray-100); }
+  .preset-bets { display: flex; gap: 7px; flex-wrap: wrap; margin-top: 7px; }
+  .preset-btn { padding: 5px 12px; background: var(--white); border: 1.5px solid var(--gray-200); border-radius: 6px; color: var(--gray-600); font-family: 'Noto Sans JP', sans-serif; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.15s; }
+  .preset-btn:hover { border-color: var(--aqua); color: var(--aqua-dark); background: var(--aqua-pale); }
+  .total-bet-display { margin-top: 7px; font-size: 12.5px; color: var(--aqua-dark); font-weight: 600; }
+
+  /* Calc btn */
+  .calc-btn { width: 100%; padding: 16px; background: linear-gradient(135deg, var(--aqua), var(--aqua-dark)); border: none; border-radius: var(--radius); color: white; font-family: 'Noto Sans JP', sans-serif; font-size: 16px; font-weight: 700; letter-spacing: 0.5px; cursor: pointer; box-shadow: 0 4px 18px rgba(41,182,216,0.32); transition: transform 0.15s, box-shadow 0.15s; display: flex; align-items: center; justify-content: center; gap: 7px; margin-bottom: 9px; }
+  .calc-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 24px rgba(41,182,216,0.42); }
+  .calc-btn:active { transform: translateY(0); }
+  .reset-btn { width: 100%; padding: 11px; background: var(--white); border: 1.5px solid var(--gray-200); border-radius: var(--radius-sm); color: var(--gray-400); font-family: 'Noto Sans JP', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.15s; margin-bottom: 20px; }
+  .reset-btn:hover { border-color: var(--gray-400); color: var(--gray-600); }
+
+  /* Result */
+  .result-card { display: none; background: var(--white); border: 1.5px solid var(--aqua); border-radius: var(--radius); overflow: hidden; margin-bottom: 14px; box-shadow: 0 4px 20px rgba(41,182,216,0.14); animation: fadeUp 0.35s cubic-bezier(0.34,1.56,0.64,1) both; }
+  .result-card.show { display: block; }
+  .result-hero { background: linear-gradient(135deg, var(--aqua), var(--aqua-dark)); color: white; padding: 26px 22px; text-align: center; }
+  .result-hero-label { font-size: 11px; opacity: 0.85; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px; }
+  .result-amount { font-family: 'DM Sans', sans-serif; font-size: clamp(40px, 10vw, 64px); font-weight: 700; line-height: 1; letter-spacing: -2px; }
+  .result-unit { font-size: 20px; font-weight: 500; letter-spacing: 0; }
+  .result-body { padding: 18px 22px; }
+  .result-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--gray-100); }
+  .result-row:last-of-type { border-bottom: none; }
+  .result-row-label { font-size: 13px; color: var(--gray-600); }
+  .result-row-value { font-size: 15px; font-weight: 700; color: var(--gray-800); }
+  .result-row-value.payout { color: var(--aqua-dark); }
+  .result-row-value.positive { color: var(--green); }
+  .result-row-value.negative { color: var(--red); }
+  .detail-title { font-size: 11px; font-weight: 600; color: var(--gray-400); letter-spacing: 1px; text-transform: uppercase; margin: 14px 0 8px; }
+  .detail-row { display: flex; justify-content: space-between; padding: 7px 11px; background: var(--gray-50); border-radius: 6px; margin-bottom: 5px; font-size: 12.5px; }
+  .detail-label { color: var(--gray-600); }
+  .detail-value { font-weight: 600; }
+  .result-note { margin-top: 14px; padding: 10px 14px; background: var(--gray-50); border-radius: var(--radius-sm); font-size: 11.5px; color: var(--gray-400); line-height: 1.8; }
+
+  /* Guide */
+  .guide-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px,1fr)); gap: 10px; }
+  .guide-item { background: var(--white); border: 1px solid var(--gray-200); border-radius: var(--radius-sm); padding: 14px; transition: border-color 0.15s, box-shadow 0.15s; }
+  .guide-item:hover { border-color: var(--aqua); box-shadow: 0 2px 10px rgba(41,182,216,0.08); }
+  .guide-item-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+  .guide-item-name { font-size: 14px; font-weight: 700; }
+  .badge { font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 4px; }
+  .badge-hard { background: #fff7e6; color: #d97706; border: 1px solid #fde68a; }
+  .badge-easy { background: var(--aqua-pale); color: var(--aqua-dark); border: 1px solid var(--sky-mid); }
+  .guide-item-desc { font-size: 12px; color: var(--gray-600); line-height: 1.7; }
+
+  /* Footer */
+  footer { text-align: center; padding: 28px 20px; color: var(--gray-400); font-size: 11.5px; line-height: 2; border-top: 1px solid var(--gray-200); background: var(--white); }
+
+  .hidden { display: none !important; }
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-thumb { background: var(--sky-mid); border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="logo">
+      <div class="logo-icon">🚤</div>
+      <span class="logo-text">Boat<span>Calc</span></span>
+    </div>
+    <span class="header-tag">競艇払戻金計算</span>
+  </div>
+</header>
+
+<div class="hero">
+  <h1>競艇の払戻金を簡単に計算</h1>
+  <p>券種・オッズ・買い方を入力するだけ。初心者にも安心のサポート付き。</p>
+</div>
+
+<div class="page">
+
+  <div class="ad-slot">広告スペース (728×90)</div>
+
+  <!-- STEP 1 -->
+  <div class="card">
+    <div class="step-label">
+      <span class="step-num">1</span>
+      <span class="step-title">券種を選ぶ</span>
+    </div>
+    <div class="ticket-grid">
+      <button class="ticket-btn" data-ticket="tansho" onclick="selectTicket(this)">単勝<span class="ticket-tag">1艇</span></button>
+      <button class="ticket-btn" data-ticket="fukusho" onclick="selectTicket(this)">複勝<span class="ticket-tag">1艇</span></button>
+      <button class="ticket-btn" data-ticket="nirentan" onclick="selectTicket(this)">2連単<span class="ticket-tag">2艇・順あり</span></button>
+      <button class="ticket-btn" data-ticket="nirenfuku" onclick="selectTicket(this)">2連複<span class="ticket-tag">2艇・順なし</span></button>
+      <button class="ticket-btn" data-ticket="kakurenfuku" onclick="selectTicket(this)">拡連複<span class="ticket-tag">2艇</span></button>
+      <button class="ticket-btn active" data-ticket="sanrentan" onclick="selectTicket(this)">3連単<span class="ticket-tag">3艇・順あり</span></button>
+      <button class="ticket-btn" data-ticket="sanrenfuku" onclick="selectTicket(this)">3連複<span class="ticket-tag">3艇・順なし</span></button>
+    </div>
+  </div>
+
+  <!-- STEP 2 -->
+  <div class="card">
+    <div class="step-label">
+      <span class="step-num">2</span>
+      <span class="step-title">買い方・オッズを入力</span>
+    </div>
+
+    <div class="mode-tabs">
+      <button class="mode-tab active" onclick="selectMode('direct')">直接入力</button>
+      <button class="mode-tab" onclick="selectMode('nagashi')">流し</button>
+      <button class="mode-tab" onclick="selectMode('box')">ボックス</button>
+      <button class="mode-tab" onclick="selectMode('formation')">フォーメーション</button>
+    </div>
+
+    <div id="mode-direct"><div id="direct-fields"></div></div>
+
+    <div id="mode-nagashi" class="hidden">
+      <div class="hint-box"><strong>流しとは？</strong> 1艇（軸）を固定して、残りを複数選択する買い方。「1号艇から流す」といった形で使います。</div>
+      <div class="formation-section">
+        <span class="sub-label">🎯 軸艇（1艇を選択）</span>
+        <div class="boat-selector" id="nagashi-axis"></div>
+      </div>
+      <div class="formation-section" id="nagashi-2nd-section">
+        <span class="sub-label">2着候補（複数選択可）</span>
+        <div class="boat-selector" id="nagashi-2nd"></div>
+      </div>
+      <div class="formation-section hidden" id="nagashi-3rd-section">
+        <span class="sub-label">3着候補（複数選択可）</span>
+        <div class="boat-selector" id="nagashi-3rd"></div>
+      </div>
+    </div>
+
+    <div id="mode-box" class="hidden">
+      <div class="hint-box"><strong>ボックスとは？</strong> 選んだ艇の全組み合わせを購入。どの順番でも的中になります。広く買いたいときに便利。</div>
+      <div class="formation-section">
+        <span class="sub-label">艇を選択（2〜6艇）</span>
+        <div class="boat-selector" id="box-boats"></div>
+      </div>
+    </div>
+
+    <div id="mode-formation" class="hidden">
+      <div class="hint-box"><strong>フォーメーションとは？</strong> 着順ごとに候補艇を選択。「1着は1・2号艇、2着は3・4・5号艇」のような柔軟な買い方ができます。</div>
+      <div class="formation-section">
+        <span class="sub-label">1着候補</span>
+        <div class="boat-selector" id="form-1st"></div>
+      </div>
+      <div class="formation-section" id="form-2nd-section">
+        <span class="sub-label">2着候補</span>
+        <div class="boat-selector" id="form-2nd"></div>
+      </div>
+      <div class="formation-section hidden" id="form-3rd-section">
+        <span class="sub-label">3着候補</span>
+        <div class="boat-selector" id="form-3rd"></div>
+      </div>
+    </div>
+
+    <div id="combo-section" class="hidden" style="margin-top:16px">
+      <div class="form-label" style="margin-bottom:7px">
+        生成された組み合わせ
+        <span class="combo-count-badge" id="combo-count-badge">0点</span>
+      </div>
+      <div class="combo-list">
+        <div class="combo-header"><span>組み合わせ</span><span>オッズ</span></div>
+        <div id="combo-list"></div>
+      </div>
+    </div>
+
+    <div class="bet-section">
+      <label class="form-label">1点あたりの購入金額（円）</label>
+      <input type="number" class="form-input" id="bet-amount" value="100" min="100" step="100" placeholder="例：100">
+      <div class="preset-bets">
+        <button class="preset-btn" onclick="setBet(100)">100円</button>
+        <button class="preset-btn" onclick="setBet(200)">200円</button>
+        <button class="preset-btn" onclick="setBet(500)">500円</button>
+        <button class="preset-btn" onclick="setBet(1000)">1,000円</button>
+        <button class="preset-btn" onclick="setBet(2000)">2,000円</button>
+      </div>
+      <div class="total-bet-display" id="total-bet-display"></div>
+    </div>
+  </div>
+
+  <button class="calc-btn" onclick="calculate()"><span>💰</span> 払戻金を計算する</button>
+  <button class="reset-btn" onclick="resetAll()">リセット</button>
+
+  <!-- Result -->
+  <div class="result-card" id="result-card">
+    <div class="result-hero">
+      <div class="result-hero-label">合計払戻金額</div>
+      <div class="result-amount" id="result-amount">0<span class="result-unit">円</span></div>
+    </div>
+    <div class="result-body">
+      <div id="result-summary"></div>
+      <div id="result-detail"></div>
+      <div class="result-note" id="result-note"></div>
+    </div>
+  </div>
+
+  <div class="ad-slot">広告スペース (336×280)</div>
+
+  <!-- Guide -->
+  <div class="card">
+    <div class="step-label" style="margin-bottom:16px">
+      <span class="step-num" style="background:var(--gray-400)">?</span>
+      <span class="step-title">券種ガイド（初心者向け）</span>
+    </div>
+    <div class="guide-grid">
+      <div class="guide-item">
+        <div class="guide-item-head"><span class="guide-item-name">単勝</span><span class="badge badge-easy">当てやすい</span></div>
+        <div class="guide-item-desc">1着を予想するだけ。最もシンプル。配当は低めで初心者に◎</div>
+      </div>
+      <div class="guide-item">
+        <div class="guide-item-head"><span class="guide-item-name">複勝</span><span class="badge badge-easy">当てやすい</span></div>
+        <div class="guide-item-desc">予想艇が2着以内なら的中。確率が高く安心感のある券種。</div>
+      </div>
+      <div class="guide-item">
+        <div class="guide-item-head"><span class="guide-item-name">2連単</span><span class="badge badge-easy">中級</span></div>
+        <div class="guide-item-desc">1・2着を着順通りに予想。順番が重要で配当は高め。</div>
+      </div>
+      <div class="guide-item">
+        <div class="guide-item-head"><span class="guide-item-name">2連複</span><span class="badge badge-easy">中級</span></div>
+        <div class="guide-item-desc">1・2着を着順不問で予想。2連単より当てやすい。</div>
+      </div>
+      <div class="guide-item">
+        <div class="guide-item-head"><span class="guide-item-name">拡連複</span><span class="badge badge-easy">当てやすい</span></div>
+        <div class="guide-item-desc">選んだ2艇が1〜3着に入れば的中。的中率が最も高い。</div>
+      </div>
+      <div class="guide-item">
+        <div class="guide-item-head"><span class="guide-item-name">3連単</span><span class="badge badge-hard">高配当</span></div>
+        <div class="guide-item-desc">1〜3着を着順通りに予想。120通りあり難しいが万舟も狙える。</div>
+      </div>
+      <div class="guide-item">
+        <div class="guide-item-head"><span class="guide-item-name">3連複</span><span class="badge badge-hard">高配当</span></div>
+        <div class="guide-item-desc">1〜3着を着順不問で予想。3連単より当てやすく配当も高め。</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ad-slot">広告スペース (728×90)</div>
+
+</div>
+
+<footer>
+  <p><strong>BoatCalc</strong> — 競艇払戻金計算ツール</p>
+  <p>計算結果は参考値です。実際の払戻金は主催者の発表をご確認ください。</p>
+  <p>ボートレースは20歳以上の方が対象です。のめり込みに注意しましょう。</p>
+</footer>
+
+<script>
+let currentTicket = 'sanrentan';
+let currentMode = 'direct';
+let currentCombos = [];
+
+const TICKETS = {
+  tansho:      { name:'単勝',   pos:1, ordered:false },
+  fukusho:     { name:'複勝',   pos:1, ordered:false },
+  nirentan:    { name:'2連単',  pos:2, ordered:true  },
+  nirenfuku:   { name:'2連複',  pos:2, ordered:false },
+  kakurenfuku: { name:'拡連複', pos:2, ordered:false },
+  sanrentan:   { name:'3連単',  pos:3, ordered:true  },
+  sanrenfuku:  { name:'3連複',  pos:3, ordered:false },
+};
+
+function selectTicket(btn) {
+  document.querySelectorAll('.ticket-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  currentTicket = btn.dataset.ticket;
+  clearResult(); currentCombos = [];
+  updateInputMode();
+}
+
+function selectMode(mode) {
+  currentMode = mode;
+  const modes = ['direct','nagashi','box','formation'];
+  document.querySelectorAll('.mode-tab').forEach((t,i) => t.classList.toggle('active', modes[i]===mode));
+  modes.forEach(m => document.getElementById('mode-'+m).classList.toggle('hidden', m!==mode));
+  document.getElementById('combo-section').classList.add('hidden');
+  currentCombos = [];
+  updateInputMode();
+}
+
+function updateInputMode() {
+  const {pos} = TICKETS[currentTicket];
+  if (currentMode === 'direct') {
+    renderDirectFields();
+  } else if (currentMode === 'nagashi') {
+    buildSel('nagashi-axis', false); buildSel('nagashi-2nd', true);
+    show('nagashi-2nd-section');
+    pos===3 ? (buildSel('nagashi-3rd',true), show('nagashi-3rd-section')) : hide('nagashi-3rd-section');
+  } else if (currentMode === 'box') {
+    buildSel('box-boats', true);
+  } else if (currentMode === 'formation') {
+    buildSel('form-1st',true); show('form-2nd-section'); buildSel('form-2nd',true);
+    pos===3 ? (show('form-3rd-section'), buildSel('form-3rd',true)) : hide('form-3rd-section');
+  }
+  updateTotalBet();
+}
+
+function renderDirectFields() {
+  const cfg = TICKETS[currentTicket];
+  const el = document.getElementById('direct-fields');
+  const sel = (id) => `<select class="form-input" id="${id}">${[1,2,3,4,5,6].map(n=>`<option value="${n}">${n}号艇</option>`).join('')}</select>`;
+  const oddsInput = (ph) => `<input type="number" class="form-input" id="d-odds-1" placeholder="${ph}" step="0.1" min="1.0">`;
+  if (cfg.pos===1) {
+    el.innerHTML=`<div class="input-row"><div class="form-group"><label class="form-label">予想艇番</label>${sel('d-boat-1')}</div><div class="form-group"><label class="form-label">オッズ</label>${oddsInput('例：2.5')}</div></div>`;
+  } else if (cfg.pos===2) {
+    const L = cfg.ordered?['1着','2着']:['1艇目','2艇目'];
+    el.innerHTML=`<div class="input-row" style="margin-bottom:14px"><div class="form-group"><label class="form-label">${L[0]}</label>${sel('d-boat-1')}</div><div class="form-group"><label class="form-label">${L[1]}</label>${sel('d-boat-2')}</div></div><div class="form-group"><label class="form-label">オッズ</label>${oddsInput('例：5.6')}</div>`;
+  } else {
+    const L = cfg.ordered?['1着','2着','3着']:['1艇目','2艇目','3艇目'];
+    el.innerHTML=`<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px">${L.map((l,i)=>`<div class="form-group"><label class="form-label">${l}</label>${sel(`d-boat-${i+1}`)}</div>`).join('')}</div><div class="form-group"><label class="form-label">オッズ</label>${oddsInput('例：15.2')}</div>`;
+  }
+}
+
+function buildSel(id, multi) {
+  const c = document.getElementById(id); if(!c) return; c.innerHTML='';
+  for(let i=1;i<=6;i++){
+    const btn=document.createElement('button'); btn.className='boat-select-btn'; btn.dataset.boat=i;
+    btn.innerHTML=`<span class="boat-num boat-${i}">${i}</span>${i}号艇`;
+    btn.onclick=()=>{ if(multi) btn.classList.toggle('selected'); else{c.querySelectorAll('.boat-select-btn').forEach(b=>b.classList.remove('selected'));btn.classList.add('selected');} generateCombos(); };
+    c.appendChild(btn);
+  }
+}
+
+function generateCombos() {
+  const cfg=TICKETS[currentTicket]; const pos=cfg.pos; let combos=[];
+  if(currentMode==='nagashi'){
+    const a=getSel('nagashi-axis'),s=getSel('nagashi-2nd'),t=pos===3?getSel('nagashi-3rd'):[];
+    if(!a.length){renderCombos([]);return;}
+    const ax=a[0];
+    if(pos===2) s.forEach(b=>{if(b!==ax)combos.push([ax,b]);});
+    else s.forEach(b=>t.forEach(c=>{if(ax!==b&&b!==c&&ax!==c)combos.push([ax,b,c]);}));
+  } else if(currentMode==='box'){
+    const boats=getSel('box-boats'); if(boats.length<2){renderCombos([]);return;}
+    combos=cfg.ordered?perms(boats,pos):combs(boats,pos);
+  } else if(currentMode==='formation'){
+    const f=getSel('form-1st'),s=getSel('form-2nd'),t=pos===3?getSel('form-3rd'):[];
+    if(pos===2){f.forEach(a=>s.forEach(b=>{if(a!==b)combos.push([a,b]);}));if(!cfg.ordered)combos=dedup(combos);}
+    else{f.forEach(a=>s.forEach(b=>t.forEach(c=>{if(a!==b&&b!==c&&a!==c)combos.push([a,b,c]);})));if(!cfg.ordered)combos=dedup(combos);}
+  }
+  renderCombos(combos);
+}
+
+function renderCombos(combos) {
+  currentCombos=combos.map(c=>({numbers:c,odds:''}));
+  const sec=document.getElementById('combo-section'), list=document.getElementById('combo-list'), badge=document.getElementById('combo-count-badge');
+  if(!combos.length){sec.classList.add('hidden');updateTotalBet();return;}
+  sec.classList.remove('hidden'); badge.textContent=combos.length+'点'; list.innerHTML='';
+  combos.forEach((combo,idx)=>{
+    const div=document.createElement('div'); div.className='combo-item';
+    const nums=combo.map((n,i)=>`<span class="boat-num boat-${n}" style="width:21px;height:21px;font-size:10px">${n}</span>${i<combo.length-1?'<span class="combo-arrow">›</span>':''}`).join('');
+    div.innerHTML=`<div class="combo-numbers">${nums}</div><div class="combo-odds-wrap"><span class="combo-odds-label">オッズ</span><input type="number" class="combo-odds-input" placeholder="0.0" step="0.1" min="1" oninput="currentCombos[${idx}].odds=this.value"></div>`;
+    list.appendChild(div);
+  });
+  updateTotalBet();
+}
+
+const getSel = id => Array.from(document.getElementById(id)?.querySelectorAll('.boat-select-btn.selected')||[]).map(b=>+b.dataset.boat);
+const perms = (a,r) => r===1?a.map(x=>[x]):a.flatMap((x,i)=>perms(a.filter((_,j)=>j!==i),r-1).map(p=>[x,...p]));
+const combs = (a,r) => r===1?a.map(x=>[x]):a.flatMap((x,i)=>combs(a.slice(i+1),r-1).map(c=>[x,...c]));
+const dedup = cs => { const s=new Set(); return cs.filter(c=>{const k=[...c].sort().join('-');return s.has(k)?false:(s.add(k),true);}); };
+const show = id => document.getElementById(id)?.classList.remove('hidden');
+const hide = id => document.getElementById(id)?.classList.add('hidden');
+
+function setBet(v){ document.getElementById('bet-amount').value=v; updateTotalBet(); }
+function updateTotalBet(){
+  const bet=parseInt(document.getElementById('bet-amount').value)||100;
+  const d=document.getElementById('total-bet-display');
+  d.textContent = currentMode!=='direct'&&currentCombos.length>0 ? `合計購入金額：${(bet*currentCombos.length).toLocaleString()}円（${currentCombos.length}点 × ${bet.toLocaleString()}円）` : '';
+}
+document.addEventListener('DOMContentLoaded',()=>{ document.getElementById('bet-amount').addEventListener('input',updateTotalBet); });
+
+function calculate(){
+  const bet=parseInt(document.getElementById('bet-amount').value)||100;
+  const cfg=TICKETS[currentTicket]; let totalPayout=0,totalBet=0,items=[];
+  if(currentMode==='direct'){
+    const odds=parseFloat(document.getElementById('d-odds-1')?.value);
+    if(!odds||odds<1){alert('オッズを入力してください');return;}
+    const payout=Math.floor(bet*odds/100)*100;
+    const boats=[]; for(let i=1;i<=cfg.pos;i++){const el=document.getElementById('d-boat-'+i);if(el)boats.push(el.value+'号艇');}
+    totalPayout=payout; totalBet=bet;
+    items.push({label:boats.join(cfg.ordered?'→':'－')+` (オッズ ${odds}倍)`,payout,bet});
+  } else {
+    if(!currentCombos.length){alert('組み合わせを生成してください');return;}
+    let any=false;
+    currentCombos.forEach(c=>{
+      const odds=parseFloat(c.odds); if(!odds||odds<1)return; any=true;
+      const payout=Math.floor(bet*odds/100)*100; totalPayout+=payout; totalBet+=bet;
+      items.push({label:c.numbers.join('→')+` (オッズ ${odds}倍)`,payout,bet});
+    });
+    if(!any){alert('少なくとも1つのオッズを入力してください');return;}
+  }
+  showResult(totalPayout,totalBet,items);
+}
+
+function showResult(payout,totalBet,items){
+  const profit=payout-totalBet;
+  const rc=document.getElementById('result-card'); rc.classList.add('show');
+  document.getElementById('result-amount').innerHTML=`${payout.toLocaleString()}<span class="result-unit">円</span>`;
+  document.getElementById('result-summary').innerHTML=`
+    <div class="result-row"><span class="result-row-label">💴 合計購入金額</span><span class="result-row-value">${totalBet.toLocaleString()}円</span></div>
+    <div class="result-row"><span class="result-row-label">💰 合計払戻金額</span><span class="result-row-value payout">${payout.toLocaleString()}円</span></div>
+    <div class="result-row"><span class="result-row-label">📊 収支（損益）</span><span class="result-row-value ${profit>=0?'positive':'negative'}">${profit>=0?'+':''}${profit.toLocaleString()}円</span></div>
+  `;
+  document.getElementById('result-detail').innerHTML=items.length>1?`<div class="detail-title">内訳</div>${items.map(it=>`<div class="detail-row"><span class="detail-label">${it.label}</span><span class="detail-value">${it.payout.toLocaleString()}円</span></div>`).join('')}`:'';
+  document.getElementById('result-note').innerHTML=`計算式：払戻金 = 購入金額 × オッズ（100円単位で切り捨て）<br>券種：${TICKETS[currentTicket].name}　購入点数：${items.length}点<br>※ 実際の払戻金は主催者のオッズにより異なる場合があります。`;
+  rc.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function resetAll(){
+  clearResult(); currentCombos=[];
+  document.getElementById('combo-section').classList.add('hidden');
+  ['nagashi-axis','nagashi-2nd','nagashi-3rd','box-boats','form-1st','form-2nd','form-3rd'].forEach(id=>document.getElementById(id)?.querySelectorAll('.boat-select-btn').forEach(b=>b.classList.remove('selected')));
+  document.getElementById('total-bet-display').textContent='';
+}
+function clearResult(){ document.getElementById('result-card').classList.remove('show'); }
+
+selectMode('direct'); updateInputMode();
+</script>
+</body>
+</html>
