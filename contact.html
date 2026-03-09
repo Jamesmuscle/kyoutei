@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>お問い合わせ | 競艇払い戻しナビ</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5133484450893142"
+     crossorigin="anonymous"></script>
+<style>
+  :root {
+    --aqua: #29b6d8;
+    --aqua-dark: #1a96b8;
+    --aqua-light: #e0f5fb;
+    --aqua-pale: #f2fbfd;
+    --sky-mid: #c8edf5;
+    --white: #ffffff;
+    --gray-50: #f8fafc;
+    --gray-100: #f1f5f8;
+    --gray-200: #e2eaef;
+    --gray-400: #94aab8;
+    --gray-600: #4e6070;
+    --gray-800: #1e2e3a;
+    --green: #22c55e;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+    --radius: 14px;
+    --radius-sm: 8px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Noto Sans JP', sans-serif; background: var(--gray-50); color: var(--gray-800); min-height: 100vh; font-size: 14px; line-height: 1.6; }
+
+  header { background: var(--white); border-bottom: 1px solid var(--gray-200); padding: 0 24px; box-shadow: var(--shadow-sm); }
+  .header-inner { max-width: 800px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 60px; }
+  .logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+  .logo-icon { width: 34px; height: 34px; background: linear-gradient(135deg, var(--aqua), var(--aqua-dark)); border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 17px; box-shadow: 0 2px 8px rgba(41,182,216,0.3); }
+  .logo-text { font-family: 'DM Sans', sans-serif; font-size: 19px; font-weight: 700; color: var(--gray-800); letter-spacing: -0.5px; }
+  .logo-text span { color: var(--aqua); }
+  .back-link { font-size: 13px; color: var(--aqua-dark); text-decoration: none; font-weight: 600; }
+  .back-link:hover { text-decoration: underline; }
+
+  .hero { background: linear-gradient(135deg, var(--aqua) 0%, var(--aqua-dark) 100%); color: white; text-align: center; padding: 32px 24px; }
+  .hero h1 { font-size: clamp(18px, 4vw, 24px); font-weight: 700; }
+  .hero p { font-size: 12px; opacity: 0.85; margin-top: 5px; }
+
+  .page { max-width: 800px; margin: 0 auto; padding: 32px 20px 80px; }
+
+  .card { background: var(--white); border: 1px solid var(--gray-200); border-radius: var(--radius); padding: 32px; margin-bottom: 16px; box-shadow: var(--shadow-sm); }
+
+  .section-title {
+    font-size: 16px; font-weight: 700; color: var(--gray-800);
+    margin-bottom: 16px; padding-bottom: 10px;
+    border-bottom: 2px solid var(--aqua-light);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .section-title::before {
+    content: ''; display: inline-block; width: 4px; height: 18px;
+    background: var(--aqua); border-radius: 2px; flex-shrink: 0;
+  }
+
+  /* Note box */
+  .note-box { background: var(--aqua-pale); border: 1px solid var(--sky-mid); border-left: 3px solid var(--aqua); border-radius: var(--radius-sm); padding: 12px 16px; font-size: 13px; color: var(--gray-600); line-height: 1.8; margin-bottom: 24px; }
+  .note-box strong { color: var(--aqua-dark); }
+
+  /* Form */
+  .form-group { margin-bottom: 20px; }
+  .form-label { display: block; font-size: 13px; font-weight: 700; color: var(--gray-800); margin-bottom: 7px; }
+  .form-label span { color: #e63946; font-size: 11px; margin-left: 5px; font-weight: 600; }
+  .form-input {
+    width: 100%; padding: 11px 14px;
+    background: var(--white); border: 1.5px solid var(--gray-200);
+    border-radius: var(--radius-sm); color: var(--gray-800);
+    font-family: 'Noto Sans JP', sans-serif; font-size: 14px;
+    outline: none; transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .form-input:focus { border-color: var(--aqua); box-shadow: 0 0 0 3px rgba(41,182,216,0.1); }
+  .form-input::placeholder { color: var(--gray-400); }
+  textarea.form-input { resize: vertical; min-height: 140px; line-height: 1.7; }
+
+  /* Submit button */
+  .submit-btn {
+    width: 100%; padding: 15px;
+    background: linear-gradient(135deg, var(--aqua), var(--aqua-dark));
+    border: none; border-radius: var(--radius);
+    color: white; font-family: 'Noto Sans JP', sans-serif;
+    font-size: 15px; font-weight: 700; letter-spacing: 0.5px;
+    cursor: pointer; box-shadow: 0 4px 18px rgba(41,182,216,0.32);
+    transition: transform 0.15s, box-shadow 0.15s;
+    display: flex; align-items: center; justify-content: center; gap: 7px;
+  }
+  .submit-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 24px rgba(41,182,216,0.42); }
+  .submit-btn:active { transform: translateY(0); }
+  .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+  /* Success message */
+  .success-msg {
+    display: none;
+    background: #f0fdf4;
+    border: 1.5px solid #86efac;
+    border-radius: var(--radius-sm);
+    padding: 20px;
+    text-align: center;
+    margin-top: 20px;
+  }
+  .success-msg .success-icon { font-size: 36px; margin-bottom: 10px; }
+  .success-msg p { color: #166534; font-size: 14px; font-weight: 600; margin: 0; }
+  .success-msg small { color: #16a34a; font-size: 12px; }
+
+  /* Error message */
+  .error-msg {
+    display: none;
+    background: #fef2f2;
+    border: 1.5px solid #fca5a5;
+    border-radius: var(--radius-sm);
+    padding: 14px 16px;
+    color: #991b1b;
+    font-size: 13px;
+    margin-top: 12px;
+    text-align: center;
+  }
+
+  footer { text-align: center; padding: 28px 20px; color: var(--gray-400); font-size: 11.5px; line-height: 2; border-top: 1px solid var(--gray-200); background: var(--white); }
+  footer a { color: var(--aqua-dark); text-decoration: none; font-weight: 600; }
+  footer a:hover { text-decoration: underline; }
+
+  @media (max-width: 480px) { .card { padding: 22px 18px; } }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <a href="index.html" class="logo">
+      <div class="logo-icon">🚤</div>
+      <span class="logo-text">競艇払い戻し<span>ナビ</span></span>
+    </a>
+    <a href="index.html" class="back-link">← トップへ戻る</a>
+  </div>
+</header>
+
+<div class="hero">
+  <h1>お問い合わせ</h1>
+  <p>ご質問・ご要望・不具合のご報告はこちらから</p>
+</div>
+
+<div class="page">
+
+  <div class="card">
+
+    <div class="section-title">お問い合わせフォーム</div>
+
+    <div class="note-box">
+      <strong>ご返信について：</strong> お問い合わせ内容を確認次第、メールにてご返信いたします。返信までに数日かかる場合がございます。あらかじめご了承ください。
+    </div>
+
+    <div id="form-area">
+      <div class="form-group">
+        <label class="form-label">お名前 <span>必須</span></label>
+        <input type="text" class="form-input" id="name" placeholder="例：山田 太郎" required>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">メールアドレス <span>必須</span></label>
+        <input type="email" class="form-input" id="email" placeholder="例：example@mail.com" required>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">お問い合わせ種別 <span>必須</span></label>
+        <select class="form-input" id="category">
+          <option value="">選択してください</option>
+          <option value="計算ツールについて">計算ツールについて</option>
+          <option value="不具合・エラー報告">不具合・エラー報告</option>
+          <option value="機能のご要望">機能のご要望</option>
+          <option value="広告・掲載について">広告・掲載について</option>
+          <option value="その他">その他</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">お問い合わせ内容 <span>必須</span></label>
+        <textarea class="form-input" id="message" placeholder="お問い合わせ内容をご記入ください。" required></textarea>
+      </div>
+
+      <button class="submit-btn" id="submit-btn" onclick="submitForm()">
+        <span>✉️</span> 送信する
+      </button>
+
+      <div class="error-msg" id="error-msg">
+        送信に失敗しました。時間をおいて再度お試しください。
+      </div>
+    </div>
+
+    <div class="success-msg" id="success-msg">
+      <div class="success-icon">✅</div>
+      <p>お問い合わせを受け付けました</p>
+      <small>内容を確認後、ご登録のメールアドレスへご返信いたします。</small>
+    </div>
+
+  </div>
+
+</div>
+
+<footer>
+  <p><strong>競艇払い戻しナビ</strong> — 管理者：Boat Caluc</p>
+  <p>計算結果は参考値です。実際の払戻金は主催者の発表をご確認ください。</p>
+  <p>ボートレースは20歳以上の方が対象です。のめり込みに注意しましょう。</p>
+  <p style="margin-top:8px">
+    <a href="index.html">トップ</a>　
+    <a href="about.html">サイト情報</a>　
+    <a href="contact.html">お問い合わせ</a>　
+    <a href="privacy.html">プライバシーポリシー</a>
+  </p>
+</footer>
+
+<script>
+async function submitForm() {
+  const name     = document.getElementById('name').value.trim();
+  const email    = document.getElementById('email').value.trim();
+  const category = document.getElementById('category').value;
+  const message  = document.getElementById('message').value.trim();
+
+  // バリデーション
+  if (!name || !email || !category || !message) {
+    alert('すべての項目を入力してください。');
+    return;
+  }
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    alert('正しいメールアドレスを入力してください。');
+    return;
+  }
+
+  const btn = document.getElementById('submit-btn');
+  const errorMsg = document.getElementById('error-msg');
+  btn.disabled = true;
+  btn.innerHTML = '<span>送信中...</span>';
+  errorMsg.style.display = 'none';
+
+  try {
+    const res = await fetch('https://formspree.io/f/xreyelwo', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({ name, email, category, message })
+    });
+
+    if (res.ok) {
+      document.getElementById('form-area').style.display = 'none';
+      document.getElementById('success-msg').style.display = 'block';
+    } else {
+      throw new Error('送信失敗');
+    }
+  } catch {
+    btn.disabled = false;
+    btn.innerHTML = '<span>✉️</span> 送信する';
+    errorMsg.style.display = 'block';
+  }
+}
+</script>
+
+</body>
+</html>
